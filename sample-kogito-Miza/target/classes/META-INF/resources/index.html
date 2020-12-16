@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CGI Collection 360</title>
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+      <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container" role="main">
+    <div class="jumbotron">
+        <h1>CGI Collection 360</h1>
+
+        <p>AI/ML Driven Modernized Collection Process, it's easy and fast!</p>
+    </div>
+    <div class="page-header">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Decisions</h1>
+                <button class="pull-right btn btn-primary product-add" data-action="add" data-toggle="modal"
+                        data-target="#productModal">
+                    <span class="glyphicon glyphicon-plus"></span> Input Customer Data
+                </button>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Customer ID</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="content">
+                    <!-- filled using Ajax -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $.ajaxSetup({
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+
+        load();
+        initModal();
+    });
+
+    function create(travelRequest) {
+        $.post("/Strata", travelRequest, function () {
+            load();
+        }, "json");
+    }
+
+    function remove(id) {
+        $.ajax({
+            method: "DELETE",
+            url: "/Strata/" + id
+        }).done(function () {
+            load();
+        });
+    }
+
+    function load() {
+        $("#content").children().remove();
+        $.getJSON("/Strata", function (data) {
+            $.each(data, function (key, val) {
+                $("<tr><td>" + val.customer_id + "</td>" +
+                        "<td>" +
+                        "<button class='btn btn-primary btn-sm' " +
+                        "data-toggle='modal' " +
+                        "data-target='#productModal' " +
+                        "data-customer_id='" + val.traveller.customer_id + "' " +
+                        "data-age='" + val.traveller.age + "' " +
+                        "data-zipcode='" + val.traveller.zipcode + "' " +
+                        "data-timezone='" + val.traveller.timezone + "' " +
+                        "data-income='" + val.traveller.income + "' " +
+                        "data-custbank='" + val.traveller.custbank + "' " +
+                        "data-dirdep='" + val.traveller.dirdep + "' " +
+                        "data-actloan='" + val.traveller.actloan + "' " +
+                        "data-defloan='" + val.traveller.defloan + "' " +
+                        "data-montpay='" + val.traveller.montpay + "' " +
+                        "data-web30py='" + val.traveller.web30py + "' " +
+                        "data-web90py='" + val.traveller.web90py + "' " +
+                        "data-phone30py='" + val.traveller.phone30py + "' " +
+                        "data-phone90py='" + val.traveller.phone90py + "' " +
+                        "data-app30py='" + val.traveller.app30py + "' " +
+                        "data-app90py='" + val.traveller.app90py + "' " +
+                        "data-bran30py='" + val.traveller.bran30py + "' " +
+                        "data-bran90py='" + val.traveller.bran90py + "' " +
+                        "data-mail30py='" + val.traveller.mail30py + "' " +
+                        "data-mail90py='" + val.traveller.mail90py + "' " +
+                        "data-email30py='" + val.traveller.email30py + "' " +
+                        "data-email90py='" + val.traveller.email90py + "' " +
+                        "data-chat30py='" + val.traveller.chat30py + "' " +
+                        "data-chat90py='" + val.traveller.chat90py + "' " +
+                        "data-twitter='" + val.traveller.twitter + "' " +
+                        "data-instagram='" + val.traveller.instagram + "' " +
+                        "data-facebook='" + val.traveller.facebook + "' " +
+                        "data-onpurchase='" + val.traveller.onpurchase + "' " +
+                        "data-cusconscm='" + val.traveller.cusconscm + "' " +
+                        "data-cusconscel='" + val.traveller.cusconscel + "' " +
+                        "data-cusconslan='" + val.traveller.cusconslan + "' " +
+                        "data-cusconstex='" + val.traveller.cusconstex + "' " +
+                        "data-nocalltime='" + val.traveller.nocalltime + "' " +
+                        "data-pascolleccommu='" + val.traveller.pascolleccommu + "' " +
+                        "data-commuchan='" + val.traveller.commuchan + "' " +
+                        "data-commutime='" + val.traveller.commutime + "' " +
+                        "data-score='" + val.traveller.score + "' " +
+                        "data-id='" + val.id + "'>" +
+                        "<span>Details</span>" +
+                        "</button>&nbsp;" +
+                        "<button class='btn btn-danger btn-sm product-delete' data-id='" + val.id + "'>" +
+                        "   <span>Cancel</span>" +
+                        "</button>" +
+                        "</td>" +
+                        "</tr>").appendTo("#content");
+            });
+            initCallbacks();
+        });
+    }
+
+    function initCallbacks() {
+        $(".product-delete").unbind().click(function() {
+           var id = $(this).data("id");
+           remove(id);
+        });
+
+    }
+
+    function initModal() {
+        $("#productModal").on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var action = button.data('action');
+            var id = button.data('id');
+            var productAction = $("#productAction");
+            productAction.unbind();
+            var modal = $(this);
+            modal.find('.modal-title').text("Input Customer Data");
+            modal.find('#customer_id').val("");
+            modal.find('#age').val("");
+            modal.find('#zipcode').val("");
+            modal.find('#timezone').val("");
+            modal.find('#income').val("");
+            modal.find('#custbank').val("");
+            modal.find('#dirdep').val("");
+            modal.find('#actloan').val("");
+            modal.find('#defloan').val("");
+            modal.find('#montpay').val("");
+            modal.find('#web30py').val("");
+            modal.find('#web90py').val("");
+            modal.find('#phone30py').val("");
+            modal.find('#phone90py').val("");
+            modal.find('#app30py').val("");
+            modal.find('#app90py').val("");
+            modal.find('#bran30py').val("");
+            modal.find('#bran90py').val("");
+            modal.find('#mail30py').val("");
+            modal.find('#mail90py').val("");
+            modal.find('#email30py').val("");
+            modal.find('#email90py').val("");
+            modal.find('#chat30py').val("");
+            modal.find('#chat90py').val("");
+            modal.find('#twitter').val("");
+            modal.find('#instagram').val("");
+            modal.find('#facebook').val("");
+            modal.find('#onpurchase').val("");
+            modal.find('#cusconscm').val("");
+            modal.find('#cusconscel').val("");
+            modal.find('#cusconslan').val("");
+            modal.find('#cusconstex').val("");
+            modal.find('#nocalltime').val("");
+            modal.find('#pascolleccommu').val("");
+            modal.find('#commuchan').val("");
+            modal.find('#commutime').val("");
+            modal.find('#score').val("");
+
+            productAction.click(function () {
+                var traveller = {customer_id: $("#customer_id").val(), age: $("#age").val(), zipcode: $("#zipcode").val(), timezone: $("#timezone").val(),income: $("#income").val(),custbank: $("#custbank").val(),dirdep: $("#dirdep").val(),actloan: $("#actloan").val(),defloan: $("#defloan").val(),montpay: $("#montpay").val(),web30py: $("#web30py").val(),web90py: $("#web90py").val(),phone30py: $("#phone30py").val(),phone90py: $("#phone90py").val(),app30py: $("#app30py").val(),app90py: $("#app90py").val(),bran30py: $("#bran30py").val(),bran90py: $("#bran90py").val(),mail30py: $("#mail30py").val(),mail90py: $("#mail90py").val(),email30py: $("#email30py").val(),email90py: $("#email90py").val(),chat30py: $("#chat30py").val(),chat90py: $("#chat90py").val(),twitter: $("#twitter").val(),instagram: $("#instagram").val(),facebook: $("#facebook").val(),onpurchase: $("#onpurchase").val(),cusconscm: $("#cusconscm").val(),cusconscel: $("#cusconscel").val(),cusconslan: $("#cusconslan").val(),cusconstex: $("#cusconstex").val(),nocalltime: $("#nocalltime").val(),pascolleccommu: $("#pascolleccommu").val(),commuchan: $("#commuchan").val(),commutime: $("#commutime").val(),score: $("#score").val() };
+                var travelRequest = JSON.stringify({traveller: traveller});
+
+                create(travelRequest);
+                $('#productModal').modal('toggle');
+            });
+        })
+
+        $("#detailsModal").on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var action = button.data('action');
+            var id = button.data('id');
+            var modal = $(this);
+            modal.find('.modal-title').text("Details of Customer ID " + button.data("customer_id") + ", " + button.data("firstname"));
+            modal.find('#customer_id').val(button.data("customer_id"));
+            modal.find('#age').val(button.data("age"));
+            modal.find('#zipcode').val(button.data("zipcode"));
+            modal.find('#timezone').val(button.data("timezone"));
+            if(button.data("visa-application") !== null && button.data("visa-application") !== '') {
+                $('#visa-application-group').show();
+                modal.find('#visaApplication').attr('href', button.data("visa-application"));
+            } else {
+                $('#visa-application-group').hide();
+                modal.find('#visaApplication').attr('href', '#');
+            }
+        })
+
+    }
+</script>
+<div class="modal fade" id="productModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h4 class="modal-title" id="productModalTitle">Input Customer Data</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                        <div class="row">
+                            <h3>Customer Data</h3>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <div class="form-group">
+                                    <label for="customer_id">Customer ID</label> <input type="text"
+                                        class="form-control" id="customer_id" name="customer_id" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="age">Age</label> <input type="text"
+                                        class="form-control" id="age" name="Age" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="zipcode">Zip Code</label> <input type="text"
+                                        class="form-control" id="zipcode" name="zipcode" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="timezone">Time Zone</label> <input
+                                        type="text" class="form-control" id="timezone"  name="timezone" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="income">Income</label> <input type="email"
+                                        class="form-control" id="income" name="income" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="custbank">CustBank</label> <input type="text"
+                                        class="form-control" id="custbank" name="custbank" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dirdep">Direct Deposit</label> <input type="text"
+                                        class="form-control" id="dirdep" name="dirdep" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="actloan">Act Loan</label> <input type="text"
+                                        class="form-control" id="actloan" name="actloan" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="defloan">Def Loan</label> <input type="text"
+                                        class="form-control" id="defloan" name="defloan" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="montpay">Mont Pay</label> <input type="email"
+                                        class="form-control" id="montpay" name="montpay" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="web30py">Web30 Pay</label> <input type="text"
+                                        class="form-control" id="web30py" name="web30py" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="web90py">Web90 Pay</label> <input type="text"
+                                        class="form-control" id="web90py" name="web90py" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone30py">Phone30 Pay</label> <input type="text"
+                                        class="form-control" id="phone30py" name="phone30py" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone90py">Phone90 Pay</label> <input type="text"
+                                        class="form-control" id="phone90py" name="phone90py" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="app30py">app30py</label> <input type="email"
+                                        class="form-control" id="app30py" name="app30py" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="app90py">app90py</label> <input type="text"
+                                        class="form-control" id="app90py" name="app90py" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bran30py">bran30py</label> <input type="text"
+                                        class="form-control" id="bran30py" name="bran30py" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bran90py">bran90py</label> <input type="text"
+                                        class="form-control" id="bran90py" name="bran90py" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="mail30py">mail30py</label> <input type="text"
+                                        class="form-control" id="mail30py" name="mail30py" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <div class="form-group">
+                                    <label for="mail90py">mail90py</label> <input type="text"
+                                        class="form-control" id="mail90py" name="mail90py" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email30py">email30py</label> <input type="text"
+                                        class="form-control" id="email30py" name="email30py" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email90py">email90py</label> <input type="text"
+                                        class="form-control" id="email90py" name="email90py" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="chat30py">chat30py</label> <input type="text"
+                                        class="form-control" id="chat30py" name="chat30py" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="chat90py">chat90py</label> <input type="text"
+                                        class="form-control" id="chat90py" name="chat90py" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="twitter">twitter</label> <input type="text"
+                                        class="form-control" id="twitter" name="twitter" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="instagram">instagram</label> <input type="text"
+                                        class="form-control" id="instagram" name="instagram" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="facebook">facebook</label> <input type="text"
+                                        class="form-control" id="facebook" name="facebook" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="onpurchase">onpurchase</label> <input type="text"
+                                        class="form-control" id="onpurchase" name="onpurchase" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cusconscm">cusconscm</label> <input type="text"
+                                        class="form-control" id="cusconscm" name="cusconscm" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cusconscel">cusconscel</label> <input type="text"
+                                        class="form-control" id="cusconscel" name="cusconscel" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cusconslan">cusconslan</label> <input type="text"
+                                        class="form-control" id="cusconslan" name="cusconslan" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cusconstex">cusconstex</label> <input type="text"
+                                        class="form-control" id="cusconstex" name="cusconstex" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nocalltime">nocalltime</label> <input type="text"
+                                        class="form-control" id="nocalltime" name="nocalltime" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="pascolleccommu">pascolleccommu</label> <input type="text"
+                                        class="form-control" id="pascolleccommu" name="pascolleccommu" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="commuchan">Commu Channel</label> <input type="text"
+                                        class="form-control" id="commuchan" name="commuchan" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="commutime">Comm Time</label> <input type="text"
+                                        class="form-control" id="commutime" name="commutime" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="score">Score</label> <input type="text"
+                                        class="form-control" id="score" name="score" required>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default"
+                                    data-dismiss="modal">Cancel</button>
+                                <button type="button" id="productAction" class="btn btn-primary">Submit Input Data</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="modal fade" id="detailsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h4 class="modal-title" id="detailsModalTitle">Details of a travel</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <div class="form-group">
+                                    <h3>Customer</h3>
+                                </div>
+                                <div class="form-group">
+                                    <label for="customer_id">Customer ID</label> <input type="text"
+                                        class="form-control" id="customer_id" name="customer_id" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="age">Age</label> <input type="text"
+                                        class="form-control" id="age" name="age" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="zipcode">ZipCode</label> <input type="text"
+                                        class="form-control" id="zipcode" name="zipcode" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="timezone">Nationality</label> <input
+                                        type="text" class="form-control" id="timezone" name="timezone" readonly>
+                                </div>
+                          </div>
+
+
+                        <div class="row">
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>
